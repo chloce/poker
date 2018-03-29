@@ -1,4 +1,12 @@
-import 'dart:math';
+main() {
+  List a = ['a', 'b', 'c'];
+
+  List b = ['b', 'a', 'c'];
+
+  print(a == b);
+}
+
+/*import 'dart:math';
 
 main() {
   List suits = ['heart', 'spade', 'dia', 'club'];
@@ -157,3 +165,4 @@ List checkPair(cardNumbers) {
       return [-1];
   }
 }
+*/

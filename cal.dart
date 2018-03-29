@@ -1,102 +1,51 @@
 import 'dart:math';
 
 main() {
-  List<Object> cards = [
-    {'numb': 1, 'suit': 'heart'},
-    {'numb': 1, 'suit': 'spade'},
-    {'numb': 1, 'suit': 'dia'},
-    {'numb': 1, 'suit': 'club'},
-    {'numb': 2, 'suit': 'heart'},
-    {'numb': 2, 'suit': 'spade'},
-    {'numb': 2, 'suit': 'dia'},
-    {'numb': 2, 'suit': 'club'},
-    {'numb': 3, 'suit': 'heart'},
-    {'numb': 3, 'suit': 'spade'},
-    {'numb': 3, 'suit': 'dia'},
-    {'numb': 3, 'suit': 'club'},
-    {'numb': 4, 'suit': 'heart'},
-    {'numb': 4, 'suit': 'spade'},
-    {'numb': 4, 'suit': 'dia'},
-    {'numb': 4, 'suit': 'club'},
-    {'numb': 5, 'suit': 'heart'},
-    {'numb': 5, 'suit': 'spade'},
-    {'numb': 5, 'suit': 'dia'},
-    {'numb': 5, 'suit': 'club'},
-    {'numb': 6, 'suit': 'heart'},
-    {'numb': 6, 'suit': 'spade'},
-    {'numb': 6, 'suit': 'dia'},
-    {'numb': 6, 'suit': 'club'},
-    {'numb': 7, 'suit': 'heart'},
-    {'numb': 7, 'suit': 'spade'},
-    {'numb': 7, 'suit': 'dia'},
-    {'numb': 7, 'suit': 'club'},
-    {'numb': 8, 'suit': 'heart'},
-    {'numb': 8, 'suit': 'spade'},
-    {'numb': 8, 'suit': 'dia'},
-    {'numb': 8, 'suit': 'club'},
-    {'numb': 9, 'suit': 'heart'},
-    {'numb': 9, 'suit': 'spade'},
-    {'numb': 9, 'suit': 'dia'},
-    {'numb': 9, 'suit': 'club'},
-    {'numb': 10, 'suit': 'heart'},
-    {'numb': 10, 'suit': 'spade'},
-    {'numb': 10, 'suit': 'dia'},
-    {'numb': 10, 'suit': 'club'},
-    {'numb': 11, 'suit': 'heart'},
-    {'numb': 11, 'suit': 'spade'},
-    {'numb': 11, 'suit': 'dia'},
-    {'numb': 11, 'suit': 'club'},
-    {'numb': 12, 'suit': 'heart'},
-    {'numb': 12, 'suit': 'spade'},
-    {'numb': 12, 'suit': 'dia'},
-    {'numb': 12, 'suit': 'club'},
-    {'numb': 13, 'suit': 'heart'},
-    {'numb': 13, 'suit': 'spade'},
-    {'numb': 13, 'suit': 'dia'},
-    {'numb': 13, 'suit': 'club'},
-  ];
+  List suits = ['heart', 'spade', 'dia', 'club'];
 
-  Map randomCardList = randomNumbers(cards); //ランダムな手札と場を作る.
-  List first;
-  List pairCheckFirst = checkPair(randomCardList['first']);
-  List straightCheckFirst = straightCheck(randomCardList['first']);
-  List flashCheckFirst = flashCheck(randomCardList['first']);
+  Map randomCardList = randomNumbers(suits); //ランダムな手札と場を作る
+  List firstHand = randomCardList['firstHand'];
+  List firstFinal;
+  List pairFirst = checkPair(randomCardList['firstPlayerNumbers']);
+  List straightFirst = straightCheck(randomCardList['firstPlayerNumbers']);
+  List flashFirst = flashCheck(randomCardList['first']);
 
-  if (flashCheckFirst[0] == 5 && straightCheckFirst[0] == 4) {
-    first = [8];
-  } else if (pairCheckFirst[0] < flashCheckFirst[0]) {
-    first = flashCheckFirst;
-  } else if (pairCheckFirst[0] < straightCheckFirst[0]) {
-    first = straightCheckFirst;
+  if (straightFirst != -1 && straightFirst == flashFirst) {
+    firstFinal = [8, straightFirst];
+  } else if (pairFirst[0] < flashFirst[0]) {
+    firstFinal = flashFirst;
+  } else if (pairFirst[0] < straightFirst[0]) {
+    firstFinal = straightFirst;
   } else {
-    first = pairCheckFirst;
+    firstFinal = pairFirst;
   }
   //straightCheck(randomCardList['first']);
-  List second;
-  List pairCheckSecond = checkPair(randomCardList['second']);
-  List straightCheckSecond = straightCheck(randomCardList['second']);
-  List flashCheckSecond = flashCheck(randomCardList['second']);
-  if (flashCheckSecond[0] == 5 && straightCheckSecond[0] == 4) {
-    second = [8];
-  } else if (pairCheckSecond[0] < flashCheckSecond[0]) {
-    second = flashCheckSecond;
-  } else if (pairCheckSecond[0] < straightCheckSecond[0]) {
-    second = straightCheckSecond;
-  } else {
-    second = pairCheckSecond;
-  }
-  print(first);
-  print(second);
+  List secondHand = randomCardList['secondHand'];
+  List secondFinal;
+  List pairSecond = checkPair(randomCardList['secondPlayerNumbers']);
+  List straightSecond = straightCheck(randomCardList['secondPlayerNumbers']);
 
-  checkWinner(first, second);
+  List flashSecond = flashCheck(randomCardList['second']);
+  if (straightSecond != -1 && straightSecond == flashSecond) {
+    secondFinal = [8, straightSecond];
+  } else if (pairSecond[0] < flashSecond[0]) {
+    secondFinal = flashSecond;
+  } else if (pairSecond[0] < straightSecond[0]) {
+    secondFinal = straightSecond;
+  } else {
+    secondFinal = pairSecond;
+  }
+  checkWinner(firstFinal, secondFinal, firstHand, secondHand);
 }
 
-Map randomNumbers(cards) {
+Map randomNumbers(suits) {
   Set randomSet = new Set();
   while (randomSet.length < 9) {
-    randomSet.add(cards[new Random().nextInt(52)]);
+    randomSet
+        .add([new Random().nextInt(13) + 1, suits[new Random().nextInt(4)]]);
   }
-  List<Object> randomList = randomSet.toList();
+
+  List<List> randomList = randomSet.toList();
   List firstPlayer = [
     randomList[0],
     randomList[1],
@@ -106,6 +55,18 @@ Map randomNumbers(cards) {
     randomList[7],
     randomList[8]
   ];
+
+  List firstPlayerNumbers = [
+    randomList[0][0],
+    randomList[1][0],
+    randomList[4][0],
+    randomList[5][0],
+    randomList[6][0],
+    randomList[7][0],
+    randomList[8][0]
+  ];
+  firstPlayerNumbers.sort();
+
   List secondPlayer = [
     randomList[2],
     randomList[3],
@@ -115,77 +76,132 @@ Map randomNumbers(cards) {
     randomList[7],
     randomList[8]
   ];
-  return {'first': firstPlayer, 'second': secondPlayer};
+  List secondPlayerNumbers = [
+    randomList[2][0],
+    randomList[3][0],
+    randomList[4][0],
+    randomList[5][0],
+    randomList[6][0],
+    randomList[7][0],
+    randomList[8][0]
+  ];
+  secondPlayerNumbers.sort();
+
+  return {
+    'first': firstPlayer,
+    'second': secondPlayer,
+    'firstPlayerNumbers': firstPlayerNumbers,
+    'secondPlayerNumbers': secondPlayerNumbers,
+    'firstHand': [randomList[0], randomList[1]],
+    'secondHand': [randomList[2], randomList[3]]
+  };
 }
 
-List checkPair(cards) {
-  int numberOfSet = 0;
-  List handAndField = [];
-  List<int> setCards = [];
-  for (int i = 0; i < 7; i++) {
-    int oneCardnumb = cards[i]['numb'];
-    handAndField.add(oneCardnumb);
-    for (int j = i + 1; j < 7; j++) {
-      int anotherCardnumb = cards[j]['numb'];
-      if (oneCardnumb == anotherCardnumb) {
-        numberOfSet++;
-        setCards.add(cards[j]['numb']);
-      }
+List checkPair(cardNumbers) {
+  List pairs = [];
+  List numbers = cardNumbers;
+  if (numbers[0] == 1) {
+    int last = numbers.lastIndexOf(1);
+    if (last >= 1) {
+      pairs.add([1, last + 1]);
+      numbers.removeRange(0, last + 1);
     }
   }
-  handAndField.sort();
-  //return [numberOfSet, setCards];
-  switch (numberOfSet) {
+  numbers = numbers.reversed.toList();
+  for (int i = 0; i < numbers.length; i++) {
+    int first = numbers.indexOf(numbers[i]);
+    int last = numbers.lastIndexOf(numbers[i]);
+    if (first != last) {
+      pairs.add([numbers[i], last - first + 1]);
+      numbers.removeRange(i, last + 1);
+      i--;
+    }
+  }
+  if (numbers[numbers.length - 1] == 1) {
+    numbers.remove(1);
+    numbers = numbers.reversed.toList();
+    numbers.add(1);
+    numbers = numbers.reversed.toList();
+  }
+  switch (pairs.length) {
     case 0:
-      print('high card');
-      return [0, setCards, handAndField];
+      return [0, numbers.sublist(0, 5).toList()];
     case 1:
-      print('one pair');
-      return [1, setCards, handAndField];
-      break;
-    case 2:
-      setCards.sort();
-      print('two pair');
-      return [2, setCards, handAndField];
-    case 3:
-      Set threePairCheck = new Set();
-      for (int each in setCards) {
-        threePairCheck.add(each);
+      switch (pairs[0][1]) {
+        case 2:
+          return [1, pairs[0], numbers.sublist(0, 3).toList()];
+        case 3:
+          return [3, pairs[0], numbers.sublist(0, 2).toList()];
+        case 4:
+          return [7, pairs[0], numbers[0]];
       }
-      if (threePairCheck.length == 3) {
-        List threePairToTwoPair = threePairCheck.toList();
-        threePairToTwoPair.sort();
-        List twoPair =
-            threePairToTwoPair.reversed.toList().sublist(0, 2).reversed;
-        print('two pair');
-        return [2, twoPair, handAndField];
-      }
-      print('three card');
-      return [3, setCards, handAndField];
+      return [-1];
 
-    case 4:
-      print('full house');
-      return [6, setCards, handAndField];
-    case 6:
-      print('four pair');
-      return [7, setCards, handAndField];
+    case 2:
+      if (pairs[0][1] == 2 && pairs[1][1] == 2) {
+        return [2, pairs, numbers[0]];
+      } else if (pairs[0][1] == 4) {
+        numbers.add(pairs[1][0]);
+        numbers.sort();
+        numbers = numbers.reversed.toList();
+        return [7, pairs[0], numbers[0]];
+      } else if (pairs[1][1] == 4) {
+        numbers.add(pairs[0][0]);
+        numbers.sort();
+        numbers = numbers.reversed.toList();
+        return [7, pairs[1], numbers[0]];
+      } else if (pairs[0][1] == 3) {
+        return [6, pairs];
+      } else if (pairs[1][1] == 3) {
+        return [6, pairs.reversed.toList()];
+      }
+      return [-1];
+    case 3:
+      if (pairs[0][1] == 2 && pairs[1][1] == 2 && pairs[2][1] == 2) {
+        numbers.add(pairs[2][0]);
+        numbers.sort();
+        numbers = numbers.reversed.toList();
+        return [
+          2,
+          [pairs[0], pairs[1]],
+          numbers[0]
+        ];
+      } else if (pairs[0][1] == 3) {
+        return [
+          6,
+          [pairs[0], pairs[1]]
+        ];
+      } else if (pairs[1][1] == 3) {
+        return [
+          6,
+          [pairs[1], pairs[0]]
+        ];
+      } else if (pairs[2][1] == 3) {
+        return [
+          6,
+          [pairs[2], pairs[0]]
+        ];
+      }
+      return [-1];
     default:
-      print('what wrong');
-      return [-1, setCards, handAndField];
+      return [-1];
   }
 }
 
-List straightCheck(card) {
+List straightCheck(numbers) {
   List straight = [];
   int count = 0;
 
-  Set cardsets = new Set();
-  for (Map each in card) {
-    cardsets.add(each['numb']);
+  Set cardset = new Set();
+  for (Map each in numbers) {
+    cardset.add(each);
   }
-  List cardList = cardsets.toList();
+  List cardList = cardset.toList();
+  if (cardList[0] == 1) {
+    cardList.removeAt(0);
+    cardList.add(1);
+  }
   if (cardList.length > 4) {
-    cardList.sort();
     int formerCard = cardList[0];
 
     for (int i = 1; i < cardList.length; i++) {
@@ -212,27 +228,31 @@ List straightCheck(card) {
   }
 }
 
-List flashCheck(card) {
+List flashCheck(cards) {
+  List card = cards;
+  if (card[0][0] == 1) {
+    List aceCard = card[0];
+    card.removeAt(0);
+    card.add(aceCard);
+  }
   bool isFlash = false;
+
   List flash = [];
   List flashList = [];
   for (int i = 0; i < 3; i++) {
     int count = 0;
-    String oneSuit = card[i]['suit'];
-    flash.add(card[i]['numb']);
+    String oneSuit = card[i][1];
+    flash.add(card[i][0]);
     for (int j = i + 1; j < card.length; j++) {
-      String anotherSuit = card[j]['suit'];
+      String anotherSuit = card[j][1];
       if (oneSuit == anotherSuit) {
-        flash.add(card[j]['numb']);
+        flash.add(card[j][0]);
         count++;
       }
     }
-    if (count >= 5) {
-      print('flash');
+    if (count == 5) {
       isFlash = true;
-      print(count);
-      flash.reversed;
-      flashList = flash.reversed.toList().sublist(0, 5).reversed.toList();
+      flashList = flash.reversed.toList().reversed.toList();
     }
   }
   if (!isFlash) {
@@ -242,11 +262,11 @@ List flashCheck(card) {
   }
 }
 
-void checkWinner(List first, List second, [Map randomCardList]) {
+void checkWinner(List first, List second, List firstHand, List secondHand) {
   if (first[0] > second[0]) {
-    print('first win ');
+    print('first win $first $firstHand');
   } else if (first[0] < second[0]) {
-    print('second win');
+    print('second win $second $secondHand');
   } else {
     switch (first[0]) {
       case 0:
