@@ -1,48 +1,124 @@
 import 'dart:math';
+import 'dart:collection';
 
 main() {
-  List suits = ['heart', 'spade', 'dia', 'club'];
+  List<Object> cards = [
+    [1, 'heart'],
+    [1, 'spade'],
+    [1, 'dia'],
+    [1, 'club'],
+    [2, 'heart'],
+    [2, 'spade'],
+    [2, 'dia'],
+    [2, 'club'],
+    [3, 'heart'],
+    [3, 'spade'],
+    [3, 'dia'],
+    [3, 'club'],
+    [4, 'heart'],
+    [4, 'spade'],
+    [4, 'dia'],
+    [4, 'club'],
+    [5, 'heart'],
+    [5, 'spade'],
+    [5, 'dia'],
+    [5, 'club'],
+    [6, 'heart'],
+    [6, 'spade'],
+    [6, 'dia'],
+    [6, 'club'],
+    [7, 'heart'],
+    [7, 'spade'],
+    [7, 'dia'],
+    [7, 'club'],
+    [8, 'heart'],
+    [8, 'spade'],
+    [8, 'dia'],
+    [8, 'club'],
+    [9, 'heart'],
+    [9, 'spade'],
+    [9, 'dia'],
+    [9, 'club'],
+    [10, 'heart'],
+    [10, 'spade'],
+    [10, 'dia'],
+    [10, 'club'],
+    [11, 'heart'],
+    [11, 'spade'],
+    [11, 'dia'],
+    [11, 'club'],
+    [12, 'heart'],
+    [12, 'spade'],
+    [12, 'dia'],
+    [12, 'club'],
+    [13, 'heart'],
+    [13, 'spade'],
+    [13, 'dia'],
+    [13, 'club'],
+  ];
+  Map<String, int> wincounter = {};
+  Map<String, int> losecounter = {};
+  for (int i = 0; i < 1000000000; i++) {
+    Map randomCardList = randomNumbers(cards); //ランダムな手札と場を作る
+    List firstHand = randomCardList['firstHand'];
+    List firstFinal;
+    List pairFirst = checkPair(randomCardList['firstPlayerNumbers']);
+    List straightFirst = straightCheck(randomCardList['firstPlayerNumbers']);
+    List flashFirst = flashCheck(randomCardList['first']);
 
-  Map randomCardList = randomNumbers(suits); //ランダムな手札と場を作る
-  List firstHand = randomCardList['firstHand'];
-  List firstFinal;
-  List pairFirst = checkPair(randomCardList['firstPlayerNumbers']);
-  List straightFirst = straightCheck(randomCardList['firstPlayerNumbers']);
-  List flashFirst = flashCheck(randomCardList['first']);
+    if (straightFirst != -1 && straightFirst == flashFirst) {
+      firstFinal = [8, straightFirst].toList();
+    } else if (pairFirst[0] < flashFirst[0]) {
+      firstFinal = flashFirst.toList();
+    } else if (pairFirst[0] < straightFirst[0]) {
+      firstFinal = straightFirst.toList();
+    } else {
+      firstFinal = pairFirst.toList();
+    }
+    //straightCheck(randomCardList['first']);
+    List secondHand = randomCardList['secondHand'];
+    List secondFinal;
+    List pairSecond = checkPair(randomCardList['secondPlayerNumbers']);
+    List straightSecond = straightCheck(randomCardList['secondPlayerNumbers']);
 
-  if (straightFirst != -1 && straightFirst == flashFirst) {
-    firstFinal = [8, straightFirst];
-  } else if (pairFirst[0] < flashFirst[0]) {
-    firstFinal = flashFirst;
-  } else if (pairFirst[0] < straightFirst[0]) {
-    firstFinal = straightFirst;
-  } else {
-    firstFinal = pairFirst;
+    List flashSecond = flashCheck(randomCardList['second']);
+    if (straightSecond != -1 && straightSecond == flashSecond) {
+      secondFinal = [8, straightSecond].toList();
+    } else if (pairSecond[0] < flashSecond[0]) {
+      secondFinal = flashSecond.toList();
+    } else if (pairSecond[0] < straightSecond[0]) {
+      secondFinal = straightSecond.toList();
+    } else {
+      secondFinal = pairSecond.toList();
+    }
+    checkWinner(firstFinal, secondFinal, firstHand, secondHand, wincounter,
+        losecounter);
   }
-  //straightCheck(randomCardList['first']);
-  List secondHand = randomCardList['secondHand'];
-  List secondFinal;
-  List pairSecond = checkPair(randomCardList['secondPlayerNumbers']);
-  List straightSecond = straightCheck(randomCardList['secondPlayerNumbers']);
-
-  List flashSecond = flashCheck(randomCardList['second']);
-  if (straightSecond != -1 && straightSecond == flashSecond) {
-    secondFinal = [8, straightSecond];
-  } else if (pairSecond[0] < flashSecond[0]) {
-    secondFinal = flashSecond;
-  } else if (pairSecond[0] < straightSecond[0]) {
-    secondFinal = straightSecond;
-  } else {
-    secondFinal = pairSecond;
+  Map percentage = <String, double>{};
+  for (String key in wincounter.keys) {
+    int total = wincounter[key] + losecounter[key];
+    double percent = (wincounter[key] / total * 100).floorToDouble();
+    percentage.addAll({key: '$percent %'});
   }
-  checkWinner(firstFinal, secondFinal, firstHand, secondHand);
+
+  var sortedKeys = percentage.keys.toList(growable: false)
+    ..sort((k1, k2) => percentage[k1].compareTo(percentage[k2]));
+  LinkedHashMap sortedMap = new LinkedHashMap.fromIterable(sortedKeys,
+      key: (k) => k, value: (k) => percentage[k]);
+  var sortedWins = percentage.keys.toList(growable: false)
+    ..sort((k1, k2) => percentage[k1].compareTo(percentage[k2]));
+  LinkedHashMap sortedwinMap = new LinkedHashMap.fromIterable(sortedWins,
+      key: (k) => k, value: (k) => percentage[k]);
+
+  print(sortedMap);
+  print('--------------------------');
+  print(sortedwinMap);
 }
 
-Map randomNumbers(suits) {
+Map randomNumbers(cards) {
   Set randomSet = new Set();
   while (randomSet.length < 9) {
-    randomSet
-        .add([new Random().nextInt(13) + 1, suits[new Random().nextInt(4)]]);
+    randomSet.add(cards[new Random().nextInt(52)]);
   }
 
   List<List> randomList = randomSet.toList();
@@ -55,6 +131,9 @@ Map randomNumbers(suits) {
     randomList[7],
     randomList[8]
   ];
+  List firstHand = [randomList[0][0], randomList[1][0]];
+  firstHand.sort();
+  firstHand.add(handSuit(randomList[0][1], randomList[1][1]));
 
   List firstPlayerNumbers = [
     randomList[0][0],
@@ -86,15 +165,26 @@ Map randomNumbers(suits) {
     randomList[8][0]
   ];
   secondPlayerNumbers.sort();
+  List secondHand = [randomList[2][0], randomList[3][0]];
+  secondHand.sort();
+  secondHand.add(handSuit(randomList[2][1], randomList[3][1]));
 
   return {
     'first': firstPlayer,
     'second': secondPlayer,
     'firstPlayerNumbers': firstPlayerNumbers,
     'secondPlayerNumbers': secondPlayerNumbers,
-    'firstHand': [randomList[0], randomList[1]],
-    'secondHand': [randomList[2], randomList[3]]
+    'firstHand': [firstHand],
+    'secondHand': [secondHand]
   };
+}
+
+String handSuit(suitA, suitB) {
+  if (suitA == suitB) {
+    return 'o';
+  } else {
+    return 's';
+  }
 }
 
 List checkPair(cardNumbers) {
@@ -117,45 +207,74 @@ List checkPair(cardNumbers) {
       i--;
     }
   }
-  if (numbers[numbers.length - 1] == 1) {
-    numbers.remove(1);
-    numbers = numbers.reversed.toList();
-    numbers.add(1);
-    numbers = numbers.reversed.toList();
+  if (numbers.length >= 1) {
+    if (numbers[numbers.length - 1] == 1) {
+      numbers.remove(1);
+      numbers = numbers.reversed.toList();
+      numbers.add(1);
+      numbers = numbers.reversed.toList();
+    }
   }
+
   switch (pairs.length) {
     case 0:
       return [0, numbers.sublist(0, 5).toList()];
     case 1:
       switch (pairs[0][1]) {
         case 2:
-          return [1, pairs[0], numbers.sublist(0, 3).toList()];
+          return [
+            1,
+            [pairs[0][0], pairs[0][0], numbers[0], numbers[1], numbers[2]]
+          ];
         case 3:
-          return [3, pairs[0], numbers.sublist(0, 2).toList()];
+          return [
+            3,
+            [pairs[0][0], pairs[0][0], pairs[0][0], numbers[0], numbers[1]]
+          ];
         case 4:
-          return [7, pairs[0], numbers[0]];
+          return [
+            7,
+            [pairs[0][0], pairs[0][0], pairs[0][0], pairs[0][0], numbers[0]]
+          ];
       }
-      return [-1];
+
+      return [-1, '1 pair'];
 
     case 2:
       if (pairs[0][1] == 2 && pairs[1][1] == 2) {
-        return [2, pairs, numbers[0]];
+        return [
+          2,
+          [pairs[0][0], pairs[0][0], pairs[1][0], pairs[1][0], numbers[0]]
+        ];
       } else if (pairs[0][1] == 4) {
         numbers.add(pairs[1][0]);
         numbers.sort();
         numbers = numbers.reversed.toList();
-        return [7, pairs[0], numbers[0]];
+        return [
+          7,
+          [pairs[0][0], pairs[0][0], pairs[0][0], pairs[0][0], numbers[0]]
+        ];
       } else if (pairs[1][1] == 4) {
         numbers.add(pairs[0][0]);
         numbers.sort();
         numbers = numbers.reversed.toList();
-        return [7, pairs[1], numbers[0]];
+        return [
+          7,
+          [pairs[1][0], pairs[1][0], pairs[1][0], pairs[1][0], numbers[0]]
+        ];
       } else if (pairs[0][1] == 3) {
-        return [6, pairs];
+        return [
+          6,
+          [pairs[0][0], pairs[0][0], pairs[0][0], pairs[1][0], pairs[1][0]]
+        ];
       } else if (pairs[1][1] == 3) {
-        return [6, pairs.reversed.toList()];
+        return [
+          6,
+          [pairs[1][0], pairs[1][0], pairs[1][0], pairs[0][0], pairs[0][0]]
+        ];
       }
-      return [-1];
+
+      return [-1, '2 pairs'];
     case 3:
       if (pairs[0][1] == 2 && pairs[1][1] == 2 && pairs[2][1] == 2) {
         numbers.add(pairs[2][0]);
@@ -163,28 +282,28 @@ List checkPair(cardNumbers) {
         numbers = numbers.reversed.toList();
         return [
           2,
-          [pairs[0], pairs[1]],
-          numbers[0]
+          [pairs[0][0], pairs[0][0], pairs[1][0], pairs[1][0], numbers[0]]
         ];
       } else if (pairs[0][1] == 3) {
         return [
           6,
-          [pairs[0], pairs[1]]
+          [pairs[0][0], pairs[0][0], pairs[0][0], pairs[1][0], pairs[1][0]]
         ];
       } else if (pairs[1][1] == 3) {
         return [
           6,
-          [pairs[1], pairs[0]]
+          [pairs[1][0], pairs[1][0], pairs[1][0], pairs[0][0], pairs[0][0]]
         ];
       } else if (pairs[2][1] == 3) {
         return [
           6,
-          [pairs[2], pairs[0]]
+          [pairs[2][0], pairs[2][0], pairs[2][0], pairs[0][0], pairs[0][0]]
         ];
       }
-      return [-1];
+
+      return [-1, '3 pairs'];
     default:
-      return [-1];
+      return [-1, 'default'];
   }
 }
 
@@ -224,7 +343,7 @@ List straightCheck(numbers) {
         straight.reversed.toList().sublist(0, 5).reversed.toList();
     return [4, straightList];
   } else {
-    return [-1];
+    return [-1, 'straight'];
   }
 }
 
@@ -256,21 +375,59 @@ List flashCheck(cards) {
     }
   }
   if (!isFlash) {
-    return [-1];
+    return [-1, 'flash'];
   } else {
     return [5, flashList];
   }
 }
 
-void checkWinner(List first, List second, List firstHand, List secondHand) {
+void checkWinner(List first, List second, List firstHand, List secondHand,
+    Map wincounter, Map losecounter) {
   if (first[0] > second[0]) {
-    print('first win $first $firstHand');
+    countWinRate(firstHand, secondHand, wincounter, losecounter);
   } else if (first[0] < second[0]) {
-    print('second win $second $secondHand');
+    countWinRate(secondHand, firstHand, wincounter, losecounter);
   } else {
-    switch (first[0]) {
-      case 0:
-      case 1:
+    int i = 0;
+    while (true) {
+      if (i == 5) {
+        countWinRate(['split'], ['split'], wincounter, losecounter);
+        break;
+      }
+      if (first[1][i] == 1 && second[1][i] == 1) {
+        i++;
+      } else if (first[1][i] == 1 && second[1][i] != 1) {
+        countWinRate(firstHand, secondHand, wincounter, losecounter);
+        break;
+      } else if (first[1][i] != 1 && second[1][i] == 1) {
+        countWinRate(secondHand, firstHand, wincounter, losecounter);
+        break;
+      } else if (first[1][i] > second[1][i]) {
+        countWinRate(firstHand, secondHand, wincounter, losecounter);
+        break;
+      } else if (first[1][i] < second[1][i]) {
+        countWinRate(secondHand, firstHand, wincounter, losecounter);
+        break;
+      } else {
+        i++;
+      }
     }
+  }
+}
+
+countWinRate(winhand, losehand, wincounter, losecounter) {
+  Map winCounter = wincounter;
+  Map loseCounter = losecounter;
+  String win = winhand.toString();
+  String lose = losehand.toString();
+  if (winCounter.containsKey(win)) {
+    winCounter[win]++;
+  } else {
+    winCounter.addAll({win: 1});
+  }
+  if (loseCounter.containsKey(lose)) {
+    loseCounter[lose]++;
+  } else {
+    loseCounter.addAll({lose: 1});
   }
 }

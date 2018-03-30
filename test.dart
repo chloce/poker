@@ -1,11 +1,9 @@
+import "dart:collection";
+
 main() {
-  List a = ['a', 'b', 'c'];
-
-  List b = ['b', 'a', 'c'];
-
-  print(a == b);
-}
-
+  Map a = {'b': 2, 'a': 1, 'c': 3};
+  print(a['b']);
+} // b
 /*import 'dart:math';
 
 main() {
